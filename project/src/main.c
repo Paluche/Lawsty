@@ -19,10 +19,8 @@
 #include "ch.h"
 #include "hal.h"
 #include "exti.h"
-
-// Helpers
-#define PAL_SET_PAD(G,P)   palSetPad(G, G##_##P)
-#define PAL_CLEAR_PAD(G,P) palClearPad(G, G##_##P)
+#include "trace.h"
+#include "global.h"
 
 /*
  * SDIO configuration.
@@ -62,11 +60,14 @@ int main(void)
 
     sdcStart(&SDCD1, &sdccfg);
 
+    trace_init();
+
     for(;;) {
         if (sdcConnect(&SDCD1))
             PAL_SET_PAD(GPIOC, RGB_LED_R);
         else
             PAL_CLEAR_PAD(GPIOC, RGB_LED_R);
         chThdSleepMilliseconds(500);
+        trace("Test\n\r");
     }
 }

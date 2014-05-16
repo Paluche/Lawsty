@@ -20,6 +20,7 @@
 #include "ch.h"
 #include "hal.h"
 #include "exti.h"
+#include "global.h"
 
 /*
  * Event source
@@ -130,8 +131,6 @@ void exti_init(void)
     chEvtRegisterMask(&pc3_sw_evt, &pc3_sw_listener, PC3_SW_MSK);
     extStart(&EXTD1, &extcfg);
 }
-
-#define PAL_READ_PAD(G, P) palReadPad(G, G##_##P)
 
 // Check the state of one or several buttons.
 // Use the event mask to specified which button you want to check.
