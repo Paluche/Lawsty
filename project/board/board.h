@@ -36,7 +36,7 @@
 /*
  * MCU type, supported types are defined in ./os/hal/platforms/hal_lld.h.
  */
-#define STM32F10X_LD
+#define STM32F10X_HD
 
 /*
  * IO pins assignments.
@@ -205,6 +205,15 @@
 #define VAL_GPIOFCRL            0x88888888      /*  PD7...PD0 */
 #define VAL_GPIOFCRH            0x88888888      /* PD15...PD8 */
 #define VAL_GPIOFODR            0xFFFFFFFF
+
+/*
+ * Port G setup.
+ * Everything input with pull-up except:
+ * NO GPIO B on STM32F103RE
+ */
+#define VAL_GPIOGCRL            0x88888888      /*  PD7...PD0 */
+#define VAL_GPIOGCRH            0x88888888      /* PD15...PD8 */
+#define VAL_GPIOGODR            0xFFFFFFFF
 
 
 /*

@@ -23,6 +23,28 @@
 // Helpers
 #define PAL_SET_PAD(G,P)   palSetPad(G, G##_##P)
 #define PAL_CLEAR_PAD(G,P) palClearPad(G, G##_##P)
+
+/*
+ * SDIO configuration.
+ */
+static const SDCConfig sdccfg = {
+  0
+};
+
+// Debug thread to know if the kernel stopped
+static WORKING_AREA(WA_led, (512));
+
+__attribute__((noreturn)) msg_t led_thread(__attribute__((unused)) void *arg)
+{
+    for(;;) {
+        PAL_SET_PAD(GPIOA, LED_DMX);
+        chThdSleepMilliseconds(500);
+        PAL_CLEAR_PAD(GPIOA, LED_DMX);
+        chThdSleepMilliseconds(500);
+    }
+}
+
+
 int main(void)
 {
     // HAL initialization, this also initializes the configured device drivers
@@ -33,56 +55,18 @@ int main(void)
     // RTOS is active.
     chSysInit();
 
-    // Initialise the exti lines
+    // Initializes the exti lines
     exti_init();
 
-    int toggle_led_dmx   = 0;
-    int toggle_rgb_led_r = 0;
-    int toggle_rgb_led_g = 0;
-    int toggle_rgb_led_b = 0;
+    chThdCreateStatic(WA_led, sizeof WA_led, NORMALPRIO, led_thread, NULL);
 
-    int  rslt_msk;
+    sdcStart(&SDCD1, &sdccfg);
+
     for(;;) {
-        rslt_msk = wait_button(ALL_SW_MSK);
-
-        if (rslt_msk & PC0_SW_MSK) {
-            if (toggle_led_dmx) {
-                toggle_led_dmx = 0;
-                PAL_SET_PAD(GPIOA, LED_DMX);
-            } else {
-                toggle_led_dmx = 1;
-                PAL_CLEAR_PAD(GPIOA, LED_DMX);
-            }
-        }
-
-        if (rslt_msk & PC1_SW_MSK) {
-            if (toggle_rgb_led_r) {
-                toggle_rgb_led_r = 0;
-                PAL_SET_PAD(GPIOC, RGB_LED_R);
-            } else {
-                toggle_rgb_led_r = 1;
-                PAL_CLEAR_PAD(GPIOC, RGB_LED_R);
-            }
-        }
-
-        if (rslt_msk & PC2_SW_MSK) {
-            if (toggle_rgb_led_g) {
-                toggle_rgb_led_g = 0;
-                PAL_SET_PAD(GPIOC, RGB_LED_G);
-            } else {
-                toggle_rgb_led_g = 1;
-                PAL_CLEAR_PAD(GPIOC, RGB_LED_G);
-            }
-        }
-
-        if (rslt_msk & PC3_SW_MSK) {
-            if (toggle_rgb_led_b) {
-                toggle_rgb_led_b = 0;
-                PAL_SET_PAD(GPIOC, RGB_LED_B);
-            } else {
-                toggle_rgb_led_b = 1;
-                PAL_CLEAR_PAD(GPIOC, RGB_LED_B);
-            }
-        }
+        if (sdcConnect(&SDCD1))
+            PAL_SET_PAD(GPIOC, RGB_LED_R);
+        else
+            PAL_CLEAR_PAD(GPIOC, RGB_LED_R);
+        chThdSleepMilliseconds(500);
     }
 }

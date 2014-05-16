@@ -29,6 +29,9 @@ const PALConfig pal_default_config =
   {VAL_GPIOBODR, VAL_GPIOBCRL, VAL_GPIOBCRH},
   {VAL_GPIOCODR, VAL_GPIOCCRL, VAL_GPIOCCRH},
   {VAL_GPIODODR, VAL_GPIODCRL, VAL_GPIODCRH},
+  {VAL_GPIOEODR, VAL_GPIOECRL, VAL_GPIOECRH},
+  {VAL_GPIOFODR, VAL_GPIOFCRL, VAL_GPIOFCRH},
+  {VAL_GPIOGODR, VAL_GPIOGCRL, VAL_GPIOGCRH},
 };
 #endif
 
@@ -42,17 +45,15 @@ void __early_init(void) {
   stm32_clock_init();
 }
 
-#if HAL_USE_MMC_SPI
-/* Board-related functions related to the MMC_SPI driver.*/
-bool_t mmc_lld_is_card_inserted(MMCDriver *mmcp) {
-
-  (void)mmcp;
+#if HAL_USE_SDC
+/* Board-related functions related to the SDC driver.*/
+bool_t sdc_lld_is_card_inserted(SDCDriver *sdcp) {
+    (void) sdcp;
   return palReadPad(GPIOC, GPIOC_SDIO_CD);
 }
 
-bool_t mmc_lld_is_write_protected(MMCDriver *mmcp) {
-
-  (void)mmcp;
+bool_t sdc_lld_is_write_protected(SDCDriver *sdcp) {
+    (void) sdcp;
   return !palReadPad(GPIOC, GPIOC_SDIO_WP);
 }
 #endif
