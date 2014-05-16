@@ -155,7 +155,7 @@
 /*
  * Port C setup.
  * Everything input with pull-up except:
- * PC0  PC0               Digital Input    4
+ * PC0  PC0               Input pull-up    8
  * PC1  RGB_LED_R         Output pushpull  3
  * PC2  RGB_LED_G         Output pushpull  3
  * PC3  RGB_LED_B         Output pushpull  3
@@ -169,11 +169,11 @@
  * PC10 SDIO_DAT2         Alternate Output B
  * PC11 SDIO_DAT3         Alternate Output B
  * PC12 SDIO_CLK          Alternate Output B
- * PC13 PC1               Digital Input    4
- * PC14 PC2               Digital Input    4
- * PC15 PC3               Digital Input    4
+ * PC13 PC1               Input pull-up    8
+ * PC14 PC2               Input pull-up    8
+ * PC15 PC3               Input pull-up    8
  */
-#define VAL_GPIOCCRL            0x44003334      /*  PC7...PC0 */
+#define VAL_GPIOCCRL            0x88003338      /*  PC7...PC0 */
 #define VAL_GPIOCCRH            0x444BBBBB      /* PC15...PC8 */
 #define VAL_GPIOCODR            0xFFFFFFFF
 
