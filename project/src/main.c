@@ -22,6 +22,7 @@
 #include "trace.h"
 #include "dac.h"
 #include "global.h"
+#include "k12n.h"
 
 /*
  * SDIO configuration.
@@ -43,7 +44,7 @@ __attribute__((noreturn)) msg_t led_thread(__attribute__((unused)) void *arg)
     }
 }
 
-#define FORCE_DISPLAY 0
+#define FORCE_DISPLAY 1
 
 int main(void)
 {
@@ -60,40 +61,18 @@ int main(void)
 
     chThdCreateStatic(WA_led, sizeof WA_led, NORMALPRIO, led_thread, NULL);
 
-    // Initializes DAC
-    init_dac();
+    // Launch and initializes the laser with the timers
+    init_laser();
 
-    // Activate amplifier
-    PAL_SET_PAD(GPIOA, AMPLI_EN);
-
-    PAL_CLEAR_PAD(GPIOA, LASER_ON);
-
+    PAL_SET_PAD(GPIOA, LASER_ON);
     for(;;) {
-        if (!PAL_READ_PAD(GPIOC, PC0) || FORCE_DISPLAY) {
+#if !FORCE_DISPLAY
+        if (!PAL_READ_PAD(GPIOC, PC0)) {
             PAL_SET_PAD(GPIOA, LASER_ON);
-            set_dac(0,0);
-            chThdSleepMilliseconds(1);
-            //PAL_SET_PAD(GPIOA, LASER_ON);
-            chThdSleepMilliseconds(5);
-            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
-            set_dac(0xffff, 0);
-            chThdSleepMilliseconds(1);
-            //PAL_SET_PAD(GPIOA, LASER_ON);
-            chThdSleepMilliseconds(5);
-            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
-            set_dac(0xffff,0xffff);
-            chThdSleepMilliseconds(1);
-            //PAL_SET_PAD(GPIOA, LASER_ON);
-            chThdSleepMilliseconds(5);
-            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
-            set_dac(0,0xffff);
-            chThdSleepMilliseconds(1);
-            //PAL_SET_PAD(GPIOA, LASER_ON);
-            chThdSleepMilliseconds(5);
-            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
         } else {
             PAL_CLEAR_PAD(GPIOA, LASER_ON);
             set_dac(0x7fff, 0x7fff);
         }
+#endif
     }
 }

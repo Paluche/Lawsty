@@ -92,6 +92,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/syscalls.c \
        $(CHIBIOS)/os/various/chprintf.c \
        $(C_FILES)/exti.c \
+       $(C_FILES)/k12n.c \
        $(C_FILES)/dac.c \
        $(C_FILES)/main.c
 
