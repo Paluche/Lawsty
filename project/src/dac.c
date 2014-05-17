@@ -30,6 +30,9 @@ void init_dac(void)
 {
     uint32_t dac_cr_val = DAC->CR;
 
+    // Enable DAC clock
+    SET(RCC, APB1ENR, DACEN);
+
     // No independent trigger
     // No wave generation
     // Default value for triangle amplitude.

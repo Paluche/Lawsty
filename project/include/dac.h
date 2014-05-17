@@ -32,6 +32,7 @@ void init_dac(void);
 // Set the values of the output.
 // Channel 1 = X axis
 // Channel 2 = Y axis
+// values are between 0 and 4095
 void set_dac(uint16_t val_ch1, uint16_t val_ch2);
 
 #endif

@@ -20,6 +20,7 @@
 #include "hal.h"
 #include "exti.h"
 #include "trace.h"
+#include "dac.h"
 #include "global.h"
 
 /*
@@ -42,6 +43,7 @@ __attribute__((noreturn)) msg_t led_thread(__attribute__((unused)) void *arg)
     }
 }
 
+#define FORCE_DISPLAY 0
 
 int main(void)
 {
@@ -58,16 +60,40 @@ int main(void)
 
     chThdCreateStatic(WA_led, sizeof WA_led, NORMALPRIO, led_thread, NULL);
 
-    sdcStart(&SDCD1, &sdccfg);
+    // Initializes DAC
+    init_dac();
 
-    trace_init();
+    // Activate amplifier
+    PAL_SET_PAD(GPIOA, AMPLI_EN);
+
+    PAL_CLEAR_PAD(GPIOA, LASER_ON);
 
     for(;;) {
-        if (sdcConnect(&SDCD1))
-            PAL_SET_PAD(GPIOC, RGB_LED_R);
-        else
-            PAL_CLEAR_PAD(GPIOC, RGB_LED_R);
-        chThdSleepMilliseconds(500);
-        trace("Test\n\r");
+        if (!PAL_READ_PAD(GPIOC, PC0) || FORCE_DISPLAY) {
+            PAL_SET_PAD(GPIOA, LASER_ON);
+            set_dac(0,0);
+            chThdSleepMilliseconds(1);
+            //PAL_SET_PAD(GPIOA, LASER_ON);
+            chThdSleepMilliseconds(5);
+            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
+            set_dac(0xffff, 0);
+            chThdSleepMilliseconds(1);
+            //PAL_SET_PAD(GPIOA, LASER_ON);
+            chThdSleepMilliseconds(5);
+            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
+            set_dac(0xffff,0xffff);
+            chThdSleepMilliseconds(1);
+            //PAL_SET_PAD(GPIOA, LASER_ON);
+            chThdSleepMilliseconds(5);
+            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
+            set_dac(0,0xffff);
+            chThdSleepMilliseconds(1);
+            //PAL_SET_PAD(GPIOA, LASER_ON);
+            chThdSleepMilliseconds(5);
+            //PAL_CLEAR_PAD(GPIOA, LASER_ON);
+        } else {
+            PAL_CLEAR_PAD(GPIOA, LASER_ON);
+            set_dac(0x7fff, 0x7fff);
+        }
     }
 }
