@@ -129,13 +129,13 @@
  * PA6  LASER_ON          Output pushpull  3
  *
  * PA8  ETH_INT           Alternate Output B
- * PA9  USART1_TX         Alternate Output B
+ * PA9  USART1_TX         Alternate Output 2Mhz A
  * PA10 USART1_RX         Digital Input    4
  * PA11 USBDM             Digital Input    4
  * PA12 USBDP             Digital Input    4
  */
 #define VAL_GPIOACRL            0x83BB0333      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x888444BB      /* PA15...PA8 */
+#define VAL_GPIOACRH            0x888444AB      /* PA15...PA8 */
 #define VAL_GPIOAODR            0xFFFFFFFF
 
 /*

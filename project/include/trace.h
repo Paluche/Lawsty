@@ -1,5 +1,5 @@
 /*
- *  Lawsty - Laser with Style
+ *  Lawsty - Laser with style
  *
  *  Copyright (C) 2014 Hubert Lefevre
  *
@@ -16,11 +16,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+/*
+ * Macros for serial.
+ */
 #ifndef __TRACE_H__
 #define __TRACE_H__
+
+#include "hal.h"
 #include "chprintf.h"
 
-// Serial Driver configuration
+// USART1 configuration
 static const SerialConfig sdconfig = {
     9600,
     0,
@@ -28,7 +33,10 @@ static const SerialConfig sdconfig = {
     0
 };
 
-#define trace_init()  sdStart(&SD1, &sdconfig);
+#define serial_init() sdStart(&SD1, &sdconfig);
+
 #define trace(...) chprintf((BaseSequentialStream *) &SD1, __VA_ARGS__)
 
+#define serial_getc() sdGet(&SD1);
+#define serial_putc(c) sdPut(&SD1, c);
 #endif
