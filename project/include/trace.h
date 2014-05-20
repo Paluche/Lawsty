@@ -19,8 +19,8 @@
 /*
  * Macros for serial.
  */
-#ifndef __TRACE_H__
-#define __TRACE_H__
+#ifndef __SERIAL_H__
+#define __SERIAL_H__
 
 #include "hal.h"
 #include "chprintf.h"
@@ -33,10 +33,20 @@ static const SerialConfig sdconfig = {
     0
 };
 
-#define serial_init() sdStart(&SD1, &sdconfig);
+#define serial_init()    sdStart(&SD1, &sdconfig);
 
-#define trace(...) chprintf((BaseSequentialStream *) &SD1, __VA_ARGS__)
+// Characters
+#define serial_getc()    sdGet(&SD1);
+#define serial_putc(c)   sdPut(&SD1, c);
 
-#define serial_getc() sdGet(&SD1);
-#define serial_putc(c) sdPut(&SD1, c);
+// Get/put s characters from/to the serial
+#define serial_get(b, s) sdRead(&SD1, b, s)
+#define serial_put(b, s) sdWrite(&SD1, b, s);
+
+// Equivalent printf function
+#define trace(...)       chprintf((BaseSequentialStream *) &SD1, __VA_ARGS__)
+
+// Receive what I call a command, a string ended by '\n\' and '\r'
+size_t receive_cmd(uint8_t *buffer, size_t size);
+
 #endif

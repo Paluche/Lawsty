@@ -88,15 +88,15 @@ static uint16_t rect_y_half_width = HALF_WIDTH_MIN;
 static uint16_t current_x   = CENTER - HALF_WIDTH_MIN;
 static uint16_t current_y   = CENTER - HALF_WIDTH_MIN;
 static int      current_axe = 0;
-#define DECREMENT 500
+#define INCREMENT 600
 
 static void tim2_cb(__attribute__((unused)) GPTDriver *gptp)
 {
 
     switch (current_axe) {
         case 0: // Increasing X
-            if (current_x + DECREMENT < X_MAX)
-                current_x += DECREMENT;
+            if (current_x + INCREMENT < X_MAX)
+                current_x += INCREMENT;
             else {
                 current_x = X_MAX;
                 current_axe++;
@@ -104,8 +104,8 @@ static void tim2_cb(__attribute__((unused)) GPTDriver *gptp)
             break;
 
         case 1: // Increasing Y
-            if (current_y + DECREMENT < Y_MAX)
-                current_y += DECREMENT;
+            if (current_y + INCREMENT < Y_MAX)
+                current_y += INCREMENT;
             else {
                 PAL_CLEAR_PAD(GPIOC, RGB_LED_G);
                 current_y = Y_MAX;
@@ -114,8 +114,8 @@ static void tim2_cb(__attribute__((unused)) GPTDriver *gptp)
             break;
 
         case 2: // Decreasing X
-            if (current_x - DECREMENT > X_MIN)
-                current_x -= DECREMENT;
+            if (current_x - INCREMENT > X_MIN)
+                current_x -= INCREMENT;
             else {
                 current_x = X_MIN;
                 current_axe++;
@@ -123,8 +123,8 @@ static void tim2_cb(__attribute__((unused)) GPTDriver *gptp)
             break;
 
         case 3: // Decreasing Y
-            if (current_y - DECREMENT > Y_MIN)
-                current_y -= DECREMENT;
+            if (current_y - INCREMENT > Y_MIN)
+                current_y -= INCREMENT;
             else {
                 current_y = Y_MIN;
                 current_axe = 0;
@@ -140,15 +140,15 @@ static void tim2_cb(__attribute__((unused)) GPTDriver *gptp)
     set_dac(current_x, current_y);
 }
 
-#define DECREMENT2 100
+#define INCREMENT2 600
 static int move = 0;
 static void tim3_cb(__attribute__((unused)) GPTDriver *gptp)
 {
     switch (move) {
         case 0:
             // Increase X width
-            if (rect_x_half_width + DECREMENT2 < HALF_WIDTH_MAX)
-                rect_x_half_width += DECREMENT2;
+            if (rect_x_half_width + INCREMENT2 < HALF_WIDTH_MAX)
+                rect_x_half_width += INCREMENT2;
             else {
                 rect_x_half_width = HALF_WIDTH_MAX;
                 move++;
@@ -157,8 +157,8 @@ static void tim3_cb(__attribute__((unused)) GPTDriver *gptp)
 
         case 1:
             // Increase Y width
-            if (rect_y_half_width + DECREMENT2 < HALF_WIDTH_MAX)
-                rect_y_half_width += DECREMENT2;
+            if (rect_y_half_width + INCREMENT2 < HALF_WIDTH_MAX)
+                rect_y_half_width += INCREMENT2;
             else {
                 rect_y_half_width = HALF_WIDTH_MAX;
                 move++;
@@ -167,10 +167,10 @@ static void tim3_cb(__attribute__((unused)) GPTDriver *gptp)
 
         case 2:
             // Decrease X and Y width
-            if ((rect_x_half_width - DECREMENT2 > HALF_WIDTH_MIN) &&
-                (rect_y_half_width - DECREMENT2 > HALF_WIDTH_MIN)) {
-                rect_x_half_width -= DECREMENT2;
-                rect_y_half_width -= DECREMENT2;
+            if ((rect_x_half_width - INCREMENT2 > HALF_WIDTH_MIN) &&
+                (rect_y_half_width - INCREMENT2 > HALF_WIDTH_MIN)) {
+                rect_x_half_width -= INCREMENT2;
+                rect_y_half_width -= INCREMENT2;
             } else {
                 rect_x_half_width = HALF_WIDTH_MIN;
                 rect_y_half_width = HALF_WIDTH_MIN;
@@ -180,10 +180,10 @@ static void tim3_cb(__attribute__((unused)) GPTDriver *gptp)
 
         case 3:
             // Increase X and Y width
-            if ((rect_x_half_width + DECREMENT2 < HALF_WIDTH_MAX) &&
-                (rect_y_half_width + DECREMENT2 < HALF_WIDTH_MAX)) {
-                rect_x_half_width += DECREMENT2;
-                rect_y_half_width += DECREMENT2;
+            if ((rect_x_half_width + INCREMENT2 < HALF_WIDTH_MAX) &&
+                (rect_y_half_width + INCREMENT2 < HALF_WIDTH_MAX)) {
+                rect_x_half_width += INCREMENT2;
+                rect_y_half_width += INCREMENT2;
             } else {
                 rect_x_half_width = HALF_WIDTH_MAX;
                 rect_y_half_width = HALF_WIDTH_MAX;
@@ -192,9 +192,20 @@ static void tim3_cb(__attribute__((unused)) GPTDriver *gptp)
             break;
 
         case 4:
+            // Decrease Y width
+            if (rect_y_half_width - INCREMENT2 > HALF_WIDTH_MIN)
+                rect_y_half_width -= INCREMENT2;
+            else {
+                rect_y_half_width = HALF_WIDTH_MIN;
+                move++;
+            }
+            break;
+
+
+        case 5:
             // Decrease X width
-            if (rect_x_half_width - DECREMENT2 > HALF_WIDTH_MIN)
-                rect_x_half_width -= DECREMENT2;
+            if (rect_x_half_width - INCREMENT2 > HALF_WIDTH_MIN)
+                rect_x_half_width -= INCREMENT2;
             else {
                 rect_x_half_width = HALF_WIDTH_MIN;
                 move = 0;
@@ -211,7 +222,7 @@ static void tim3_cb(__attribute__((unused)) GPTDriver *gptp)
 }
 
 static const GPTConfig tim2_cfg = {
-    80000,
+    40000,
     tim2_cb,
     0
 };
@@ -237,8 +248,19 @@ void init_laser(void)
     gptStart(&GPTD3, &tim3_cfg);
     gptPolledDelay(&GPTD3, 10);
 
+    PAL_CLEAR_PAD(GPIOA, LASER_ON);
+}
+
+void start_laser(void)
+{
     // Start Timers
     gptStartContinuous(&GPTD2, 2);
-    gptStartContinuous(&GPTD3, 40);
+    gptStartContinuous(&GPTD3, 400);
+}
 
+void stop_laser(void)
+{
+    // Start Timers
+    gptStopTimer(&GPTD2);
+    gptStopTimer(&GPTD3);
 }

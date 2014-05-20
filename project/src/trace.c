@@ -16,17 +16,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-/*
- * Definition of a function controlling the different parameters to display
- * pictures with the laser through the k12n scanner.
- */
-#ifndef __K12N_H__
-#define __K12N_H__
+#include "trace.h"
+#include <stdint.h>
 
-void init_laser(void);
-
-void start_laser(void);
-
-void stop_laser(void);
-
-#endif
+// What I call a command, is a string ended by '\n\' or '\r'
+size_t receive_cmd(uint8_t *buffer, size_t size)
+{
+    char rec;
+    size_t rec_size = 0;
+    do {
+        rec = serial_getc();
+        buffer[rec_size++] = rec;
+    } while((rec != '\n') && (rec != '\r') && (rec_size < size));
+    return rec_size;
+}

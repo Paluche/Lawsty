@@ -19,11 +19,12 @@
 #include "ch.h"
 #include "hal.h"
 #include "exti.h"
-#include "trace.h"
 #include "dac.h"
 #include "global.h"
 #include "k12n.h"
+#include "trace.h"
 
+#include <string.h>
 /*
  * SDIO configuration.
  */
@@ -56,23 +57,38 @@ int main(void)
     // RTOS is active.
     chSysInit();
 
-    // Initializes the exti lines
-    exti_init();
+    // Initialization the exti lines
+    // Not useful for now
+    // exti_init();
 
     chThdCreateStatic(WA_led, sizeof WA_led, NORMALPRIO, led_thread, NULL);
 
-    // Launch and initializes the laser with the timers
+    // Serial initialization
+    serial_init();
+
+    // Launch and initialization the laser with the timers
     init_laser();
 
-    PAL_SET_PAD(GPIOA, LASER_ON);
+    // Turn on the Laser
+    //PAL_SET_PAD(GPIOA, LASER_ON);
+
+    trace("Let's go\n\r");
+
+    uint8_t buffer[124];
     for(;;) {
-#if !FORCE_DISPLAY
-        if (!PAL_READ_PAD(GPIOC, PC0)) {
+        size_t size = receive_cmd(buffer, 124);
+
+        if (!memcmp((char *) buffer, "start", 5)) {
+            start_laser();
+            PAL_CLEAR_PAD(GPIOA, LED_ERR);
+            serial_put(buffer, size);
             PAL_SET_PAD(GPIOA, LASER_ON);
-        } else {
-            PAL_CLEAR_PAD(GPIOA, LASER_ON);
-            set_dac(0x7fff, 0x7fff);
         }
-#endif
+
+        if (!memcmp((char *) buffer, "stop", 4)) {
+            stop_laser();
+            PAL_SET_PAD(GPIOA, LED_ERR);
+            PAL_CLEAR_PAD(GPIOA, LASER_ON);
+        }
     }
 }
