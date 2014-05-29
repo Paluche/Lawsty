@@ -20,8 +20,8 @@
  * Initialisation of Digital to Analog Converter and function to set the
  * values of the output.
  */
-#include "stm32f10x.h"
 #include "hal.h"
+#include "stm32f10x.h"
 #include "global.h"
 
 // Initialise Digital to Analog Convert peripheral according to our needs for

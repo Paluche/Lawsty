@@ -134,9 +134,9 @@
  * PA11 USBDM             Digital Input    4
  * PA12 USBDP             Digital Input    4
  */
-#define VAL_GPIOACRL            0x83BB0333      /*  PA7...PA0 */
+#define VAL_GPIOACRL            0x83BB0333      /* PA7....PA0 */
 #define VAL_GPIOACRH            0x888444AB      /* PA15...PA8 */
-#define VAL_GPIOAODR            0xFFFFFFFF
+#define VAL_GPIOAODR            0xFFFFFFBF      /* PA15...PA0 */
 
 /*
  * Port B setup.
@@ -148,9 +148,9 @@
  * PB14 ETH_MISO          Digital input    4
  * PB15 ETH_MOSI          Alternate Output B
  */
-#define VAL_GPIOBCRL            0x88888888      /*  PB7...PB0 */
+#define VAL_GPIOBCRL            0x88888888      /* PB7....PB0 */
 #define VAL_GPIOBCRH            0xB4BB4B88      /* PB15...PB8 */
-#define VAL_GPIOBODR            0xFFFFFFFF
+#define VAL_GPIOBODR            0xFFFFFFFF      /* PB15...PB0 */
 
 /*
  * Port C setup.
@@ -162,7 +162,7 @@
  * PC4  THERM1            Analog Input     0
  * PC5  THERM2            Analog Input     0
  * PC6  SDIO_WP           Digital Input    4
- * PC7  SDIO_CD           Input Pull-up    8
+ * PC7  SDIO_CD           Input Pull-Down  8
  *
  * PC8  SDIO_DAT0         Alternate Output B
  * PC9  SDIO_DAT1         Alternate Output B
@@ -173,9 +173,9 @@
  * PC14 PC2               Input pull-up    8
  * PC15 PC3               Input pull-up    8
  */
-#define VAL_GPIOCCRL            0x88003338      /*  PC7...PC0 */
+#define VAL_GPIOCCRL            0x88003338      /* PC7....PC0 */
 #define VAL_GPIOCCRH            0x444BBBBB      /* PC15...PC8 */
-#define VAL_GPIOCODR            0xFFFFFFFF
+#define VAL_GPIOCODR            0xFFFFFFFF      /* PC15...PC0 */
 
 /*
  * Port D setup.
@@ -184,36 +184,36 @@
  * PD1 XTAL               Normal input     4
  * PD2 SDIO_CMD           Alternate Output B
  */
-#define VAL_GPIODCRL            0x88888B44      /*  PD7...PD0 */
+#define VAL_GPIODCRL            0x88888B44      /* PD7....PD0 */
 #define VAL_GPIODCRH            0x88888888      /* PD15...PD8 */
-#define VAL_GPIODODR            0xFFFFFFFF
+#define VAL_GPIODODR            0xFFFFFFFF      /* PD15...PD0 */
 
 /*
  * Port E setup.
  * Everything input with pull-up except:
- * NO GPIO B on STM32F103RE
+ * NO GPIO E on STM32F103RE
  */
-#define VAL_GPIOECRL            0x88888888      /*  PD7...PD0 */
-#define VAL_GPIOECRH            0x88888888      /* PD15...PD8 */
-#define VAL_GPIOEODR            0xFFFFFFFF
+#define VAL_GPIOECRL            0x88888888      /* PE7....PE0 */
+#define VAL_GPIOECRH            0x88888888      /* PE15...PE8 */
+#define VAL_GPIOEODR            0xFFFFFFFF      /* PE15...PE0 */
 
 /*
  * Port F setup.
  * Everything input with pull-up except:
- * NO GPIO B on STM32F103RE
+ * NO GPIO F on STM32F103RE
  */
-#define VAL_GPIOFCRL            0x88888888      /*  PD7...PD0 */
-#define VAL_GPIOFCRH            0x88888888      /* PD15...PD8 */
-#define VAL_GPIOFODR            0xFFFFFFFF
+#define VAL_GPIOFCRL            0x88888888      /* PF7....PF0 */
+#define VAL_GPIOFCRH            0x88888888      /* PF15...PF8 */
+#define VAL_GPIOFODR            0xFFFFFFFF      /* PF15...PF0 */
 
 /*
  * Port G setup.
  * Everything input with pull-up except:
- * NO GPIO B on STM32F103RE
+ * NO GPIO G on STM32F103RE
  */
-#define VAL_GPIOGCRL            0x88888888      /*  PD7...PD0 */
-#define VAL_GPIOGCRH            0x88888888      /* PD15...PD8 */
-#define VAL_GPIOGODR            0xFFFFFFFF
+#define VAL_GPIOGCRL            0x88888888      /* PG7....PG0 */
+#define VAL_GPIOGCRH            0x88888888      /* PG15...PG8 */
+#define VAL_GPIOGODR            0xFFFFFFFF      /* PG15...PG0 */
 
 
 /*

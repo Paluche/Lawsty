@@ -16,24 +16,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "ch.h"
 #include "hal.h"
 #include "exti.h"
-#include "dac.h"
+#include "_dac.h"
 #include "global.h"
 #include "k12n.h"
 #include "trace.h"
 
 #include <string.h>
-/*
- * SDIO configuration.
- */
-static const SDCConfig sdccfg = {
-  0
-};
 
 // Debug thread to know if the kernel stopped
-static WORKING_AREA(WA_led, (512));
+static THD_WORKING_AREA(WA_led, (512));
 
 __attribute__((noreturn)) msg_t led_thread(__attribute__((unused)) void *arg)
 {
@@ -46,6 +39,14 @@ __attribute__((noreturn)) msg_t led_thread(__attribute__((unused)) void *arg)
 }
 
 #define FORCE_DISPLAY 1
+/*
+ * SDIO configuration
+ */
+static const SDCConfig sdcfg = {
+    0,
+};
+
+static uint8_t blkbuf[1024];
 
 int main(void)
 {
@@ -66,6 +67,114 @@ int main(void)
     // Serial initialization
     serial_init();
 
+    sdcStart(&SDCD1, &sdcfg);
+
+    trace("/****** Waiting for card *****/\n\r");
+    while(sdcConnect(&SDCD1)) ;
+
+    PAL_CLEAR_PAD(GPIOA, LED_ERR);
+    if (!sdcConnect(&SDCD1)) {
+        trace("Card inserted\n\r");
+        /* Single aligned read.*/
+        int ret = sdcRead(&SDCD1, 0, blkbuf, 1);
+        if (ret) {
+            trace("Error single aligned read: %d\n\r", ret);
+            goto exit;
+        }
+        /* Single unaligned read.*/
+        ret = sdcRead(&SDCD1, 0, blkbuf + 1, 1);
+        if (ret) {
+            trace("Error single unaligned read: %d\n\r", ret);
+            goto exit;
+        }
+
+        /* Multiple aligned read.*/
+        ret = sdcRead(&SDCD1, 0, blkbuf, 4);
+        if (ret) {
+            trace("Error single unaligned read: %d\n", ret);
+            goto exit;
+        }
+
+        /* Multiple unaligned read.*/
+        ret = sdcRead(&SDCD1, 0, blkbuf + 1, 4);
+        if (ret) {
+            trace("Error single unaligned read: %d\n", ret);
+            goto exit;
+        }
+
+        /* Repeated multiple aligned reads.*/
+        for (int i = 0; i < 1000; i++) {
+            ret = sdcRead(&SDCD1, 0, blkbuf, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+        }
+
+        /* Repeated multiple unaligned reads.*/
+        for (int i = 0; i < 1000; i++) {
+            ret = sdcRead(&SDCD1, 0, blkbuf + 1, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+        }
+
+        /* Repeated multiple aligned writes.*/
+        for (int i = 0; i < 100; i++) {
+            ret = sdcRead(&SDCD1, 0x10000, blkbuf, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+
+            ret = sdcWrite(&SDCD1, 0x10000, blkbuf, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+
+            ret = sdcWrite(&SDCD1, 0x10000, blkbuf, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+        }
+
+        /* Repeated multiple unaligned writes.*/
+        for (int i = 0; i < 100; i++) {
+            ret = sdcRead(&SDCD1, 0x10000, blkbuf + 1, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+            ret = sdcWrite(&SDCD1, 0x10000, blkbuf + 1, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+            ret = sdcWrite(&SDCD1, 0x10000, blkbuf + 1, 4);
+            if (ret) {
+                trace("Error single unaligned read: %d\n", ret);
+                goto exit;
+            }
+        }
+
+        ret = sdcDisconnect(&SDCD1);
+        if (ret) {
+            trace("Error single unaligned read: %d\n", ret);
+            goto exit;
+        }
+    }
+exit:
+    trace("/****** End of test ******/\r\n");
+    for(;;)
+        if (!sdcConnect(&SDCD1))
+            PAL_CLEAR_PAD(GPIOA, LED_ERR);
+        else
+            PAL_SET_PAD(GPIOA, LED_ERR);
+
+#if 0
     // Launch and initialization the laser with the timers
     init_laser();
 
@@ -91,4 +200,5 @@ int main(void)
             PAL_CLEAR_PAD(GPIOA, LASER_ON);
         }
     }
+#endif
 }

@@ -17,7 +17,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ch.h"
 #include "hal.h"
 #include "exti.h"
 #include "global.h"
@@ -33,10 +32,10 @@ static EVENTSOURCE_DECL(pc3_sw_evt);
 /*
  * Event Listeners
  */
-static EventListener pc0_sw_listener;
-static EventListener pc1_sw_listener;
-static EventListener pc2_sw_listener;
-static EventListener pc3_sw_listener;
+static event_listener_t pc0_sw_listener;
+static event_listener_t pc1_sw_listener;
+static event_listener_t pc2_sw_listener;
+static event_listener_t pc3_sw_listener;
 
 /*
  * Callback definition
@@ -45,9 +44,9 @@ static EventListener pc3_sw_listener;
     static void pc##N##_sw_cb(__attribute__ ((unused)) EXTDriver *extp,      \
                               __attribute__ ((unused)) expchannel_t channel) \
     {                                                                        \
-        chSysLockFromIsr();                                                  \
+        chSysLockFromISR();                                                  \
         chEvtBroadcastFlagsI(&pc##N##_sw_evt, PC##N##_SW_MSK);               \
-        chSysUnlockFromIsr();                                                \
+        chSysUnlockFromISR();                                                \
     }
 
 DEF_SW_PC_CB(0);

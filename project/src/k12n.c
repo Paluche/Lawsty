@@ -21,7 +21,7 @@
  * pictures with the laser through the k12n scanner.
  */
 #include "hal.h"
-#include "dac.h"
+#include "_dac.h"
 #include "global.h"
 
 // We are going to use the ILDA image format.
@@ -224,13 +224,15 @@ static void tim3_cb(__attribute__((unused)) GPTDriver *gptp)
 static const GPTConfig tim2_cfg = {
     40000,
     tim2_cb,
-    0
+    0,
+    0,
 };
 
 static const GPTConfig tim3_cfg = {
     10000,
     tim3_cb,
-    0
+    0,
+    0,
 };
 
 void init_laser(void)
